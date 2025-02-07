@@ -29,12 +29,17 @@ resource "google_compute_global_forwarding_rule" "https_forwarding_rule" {
   target      = google_compute_target_https_proxy.https_proxy.self_link
 }
 
+data "google_certificate_manager_certificate_map" "certificate_map" {
+  name    = "wildcard-ssl-certificate"
+  project = "vm-group-448915"
+}
+
 # HTTPS proxy
 resource "google_compute_target_https_proxy" "https_proxy" {
   name            = "https-webserver-proxy"
   description     = "HTTPS Proxy mapping for the Load balancer including wildcard ssl certificate"
   url_map         = google_compute_url_map.url_map.self_link
-  certificate_map = "//${google_project_service.certificate_manager.service}/${google_certificate_manager_certificate_map.certificate_map.id}"
+  certificate_map = data.google_certificate_manager_certificate_map.certificate_map.id
 }
 
 # HTTP proxy
